@@ -1,4 +1,4 @@
-from typing import Tuple, List  # Para anotar los tipos de argumentos
+from typing import Tuple, List  # Para anotar los tipos de argumentos del tablero
 
 
 def limites_validos(celda, celda_max) -> bool:

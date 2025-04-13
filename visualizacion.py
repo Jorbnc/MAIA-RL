@@ -5,8 +5,8 @@ import matplotlib.animation as animation
 
 def plot_tablero(tablero, trayectoria=None) -> None:
     """
-    Plotear el Tablero con Matplotlib.
-    Si se pasa una trayectoria, se animará el recorrido del agente.
+    Plotear el tablero.
+    Si se pasa una trayectoria, se mostrará una animación con el recorrido del agente.
     """
     nro_filas, nro_columnas = tablero.nro_filas, tablero.nro_columnas
 
@@ -54,14 +54,22 @@ def plot_tablero(tablero, trayectoria=None) -> None:
                                     color="red", alpha=0.5)
         ax.add_patch(arrow)
 
+    # Animar trayectoria
     if trayectoria:
-        point, = ax.plot([], [], 'bo', markersize=12)
+        dot, = ax.plot([], [], 'bo', markersize=12) # Figura del agente. Se actualiza iterativamente
 
-        def update(frame):
+        def actualizar_frame(frame):
             coord = tablero.celda_a_coord(trayectoria[frame])
-            point.set_data([coord[0]], [coord[1]])
-            return point,
+            dot.set_data([coord[0]], [coord[1]]) # set_data espera un array, no valores escalares
+            return dot, # tuple (con 1 solo elemento) para que FuncAnimation pueda 'iterar' y re-dibujar el dot
 
-        ani = animation.FuncAnimation(fig, update, frames=len(trayectoria), interval=200, blit=True, repeat=False)
+        anim = animation.FuncAnimation( # Es necesario asignar a una variable para que el GC no lo elimine
+            fig,
+            actualizar_frame, # Función para llamar por cada frame
+            frames=len(trayectoria), # Total de frames
+            interval=200, # milisegundos
+            repeat=True, # loopear la animación
+            blit=True, # re-dibujar solo figuras que han cambiado
+        )
 
     plt.show()
