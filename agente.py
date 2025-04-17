@@ -16,11 +16,14 @@ class AgenteQLearning:
         self.pos = 1
         self.acciones = [-1, 1] # Izquierda/Derecha o Arriba/Abajo en los bordes del tablero
 
-        # Definiciones internas para efectuar búsquedas eficientes
+        # Inicio de escaleras y rodaderos
         E_inicio = [a for (a, b) in tablero.celdas_escalera] + [a for (a, b) in tablero.celdas_rodadero]
+        # Fin de escaleras y rodaderos
         E_fin = [b for (a, b) in tablero.celdas_escalera] + [b for (a, b) in tablero.celdas_rodadero]
+        # Diccionario {inicio -> fin} para ambos casos
         self.E_dict = {inicio: fin for inicio, fin in zip(E_inicio, E_fin)}
 
+        # Reward en los casos especiales (ganar o perder el juego)
         self.reward_map = {
             self.tablero.celda_victoria: 1.0,
             **{cell: -1.0 for cell in self.tablero.celdas_perdida}
@@ -30,7 +33,7 @@ class AgenteQLearning:
         self.Q = {}  # dict[Tuple[int, int], float]
 
     def escoger_accion(self, estado) -> int:
-        """Escoger una acción con el método epsilon-greedy"""
+        """Escoge una acción con el método epsilon-greedy"""
 
         # Exploración
         if random.random() < self.epsilon:
@@ -48,8 +51,7 @@ class AgenteQLearning:
 
     def actualizar_Q(self, estado, accion, reward, estado_siguiente) -> None:
         """
-        Actualización Q-learning con base en (s,a,r,s'):
-
+        Actualización Q-learning con base en(Sₜ,Aₜ,Rₜ,Sₜ₊₁):
             Q(Sₜ,Aₜ) = Q(Sₜ,Aₜ) + α[Rₜ₊₁ + γ*maxₐ Q(Sₜ₊₁,a) - Q(Sₜ,Aₜ)]    (Sutton & Barto, p. 131)
         """
         Q_actual = self.Q.get((estado, accion), 0.0)
@@ -62,9 +64,9 @@ class AgenteQLearning:
 
     def transicion(self, estado, accion):
         """
-        Función de transición que retorna:
+        Función de transición que retorna una celda entre dos posibles opciones:
             - El final de una escalera/rodadero
-            - U otra celda válida dentro del tablero
+            - Otra celda válida dentro del tablero
         """
         estado_siguiente = estado + accion
         estado_siguiente = self.E_dict.get(
@@ -74,15 +76,18 @@ class AgenteQLearning:
         return estado_siguiente
 
     def reward(self, estado_siguiente):
+        """
+        Función de recompensa basado en un mapeo (diccionario): Sₜ₊₁ -> reward
+            - +1 para celda victoria
+            - -1 para celdas perdida
+            - 0 para los otros casos
+        """
         return self.reward_map.get(estado_siguiente, 0)
 
     def step(self) -> Tuple[int, int, float, int]:
         """
-        Representa un paso en la simulación con base en las condiciones actuales:
-            - Implementa la transición entre estados y su validación
-            - Calcula las recompensas
-            - Actualiza Q
-        Retorna: (s,a,r,s')
+        Representa un paso en la simulación con base en las condiciones actuales.
+        Actualiza la Q-table con base en (Sₜ,Aₜ,Rₜ,Sₜ₊₁) y retorna la tupla.
         """
 
         estado = self.pos
