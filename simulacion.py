@@ -1,5 +1,7 @@
 from agente import AgenteQLearning
 from visualizacion import plot_tablero
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def run(tablero, episodios=1000) -> None:
@@ -7,6 +9,7 @@ def run(tablero, episodios=1000) -> None:
 
     agente = AgenteQLearning(tablero, epsilon=0.1)
     trayectoria_ult = []
+    reward_acumulado = []
 
     for episodio in range(episodios):
         # Reiniciar condiciones al inicio de cada episodio
@@ -19,6 +22,7 @@ def run(tablero, episodios=1000) -> None:
             estado, accion, reward, estado_siguiente = agente.step()
             pasos += 1
             trayectoria.append(estado_siguiente)
+            reward_acumulado.append(reward)
 
             # Evaluar si hay condición de finalización
             if estado_siguiente == agente.tablero.celda_victoria or estado_siguiente in agente.tablero.celdas_perdida:
@@ -30,4 +34,5 @@ def run(tablero, episodios=1000) -> None:
                 print(f"Episodio {episodio + 1} terminó en {pasos} pasos, con reward {reward}.")
                 break
 
-    plot_tablero(tablero, trayectoria_ult)
+    # plt.plot(np.cumsum(reward_acumulado))
+    # plot_tablero(tablero, trayectoria_ult)

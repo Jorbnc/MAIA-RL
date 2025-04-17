@@ -16,7 +16,7 @@ class AgenteQLearning:
         self.pos = 1
         self.acciones = [-1, 1] # Izquierda/Derecha o Arriba/Abajo en los bordes del tablero
 
-        # Algunas asignanciones locales para no generar estas listas por cada iteración
+        # Algunas asignaciones locales para no generar estas listas por cada iteración
         self.escaleras_a = [a for (a, b) in tablero.celdas_escalera]
         self.escaleras_b = [b for (a, b) in tablero.celdas_escalera]
         self.rodaderos_a = [a for (a, b) in tablero.celdas_rodadero]
