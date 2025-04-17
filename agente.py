@@ -16,11 +16,15 @@ class AgenteQLearning:
         self.pos = 1
         self.acciones = [-1, 1] # Izquierda/Derecha o Arriba/Abajo en los bordes del tablero
 
-        # Algunas asignaciones locales para no generar estas listas por cada iteración
-        self.escaleras_a = [a for (a, b) in tablero.celdas_escalera]
-        self.escaleras_b = [b for (a, b) in tablero.celdas_escalera]
-        self.rodaderos_a = [a for (a, b) in tablero.celdas_rodadero]
-        self.rodaderos_b = [b for (a, b) in tablero.celdas_rodadero]
+        # Definiciones internas para efectuar búsquedas eficientes
+        E_inicio = [a for (a, b) in tablero.celdas_escalera] + [a for (a, b) in tablero.celdas_rodadero]
+        E_fin = [b for (a, b) in tablero.celdas_escalera] + [b for (a, b) in tablero.celdas_rodadero]
+        self.E_dict = {inicio: fin for inicio, fin in zip(E_inicio, E_fin)}
+
+        self.reward_map = {
+            self.tablero.celda_victoria: 1.0,
+            **{cell: -1.0 for cell in self.tablero.celdas_perdida}
+        }
 
         # Q-table: Es un mapeo (estado, acción) -> Q estimado (actualizado iterativamente)
         self.Q = {}  # dict[Tuple[int, int], float]
@@ -56,6 +60,22 @@ class AgenteQLearning:
         # Actualización
         self.Q[(estado, accion)] = Q_actual + self.alpha * (reward + self.gamma * Q_vals_siguiente_max - Q_actual)
 
+    def transicion(self, estado, accion):
+        """
+        Función de transición que retorna:
+            - El final de una escalera/rodadero
+            - U otra celda válida dentro del tablero
+        """
+        estado_siguiente = estado + accion
+        estado_siguiente = self.E_dict.get(
+            estado_siguiente, # f(Sₜ,Aₜ)
+            max(1, min(estado_siguiente, self.tablero.celda_max))
+        )
+        return estado_siguiente
+
+    def reward(self, estado_siguiente):
+        return self.reward_map.get(estado_siguiente, 0)
+
     def step(self) -> Tuple[int, int, float, int]:
         """
         Representa un paso en la simulación con base en las condiciones actuales:
@@ -68,28 +88,9 @@ class AgenteQLearning:
         estado = self.pos
         accion = self.escoger_accion(estado)
 
-        # Transición al siguiente estado, asegurando los límites
-        estado_siguiente = estado + accion
-        estado_siguiente = max(1, min(estado_siguiente, self.tablero.celda_max))
-
-        # Transición para Escaleras y Rodaderos
-        try:
-            idx = self.escaleras_a.index(estado_siguiente)
-            estado_siguiente = self.escaleras_b[idx]
-        except ValueError:
-            try:
-                idx = self.rodaderos_a.index(estado_siguiente)
-                estado_siguiente = self.rodaderos_b[idx]
-            except ValueError:
-                pass
-
-        # Rewards
-        if estado_siguiente == self.tablero.celda_victoria:
-            reward = 1.0
-        elif estado_siguiente in self.tablero.celdas_perdida:
-            reward = -1.0
-        else:
-            reward = 0.0
+        # Transición y Reward del paso actual
+        estado_siguiente = self.transicion(estado, accion)
+        reward = self.reward(estado_siguiente)
 
         # Actualizar Q y estado (pos)
         self.actualizar_Q(estado, accion, reward, estado_siguiente)

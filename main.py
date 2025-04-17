@@ -13,7 +13,6 @@ tab = Tablero(
     celdas_rodadero=[(44, 18), (73, 60), (93, 87)],
 )
 
-start = time.time()
 run(tab, episodios=100)
-end = time.time()
-print(end - start)
+
+##

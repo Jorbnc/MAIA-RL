@@ -24,6 +24,9 @@ def run(tablero, episodios=1000) -> None:
             trayectoria.append(estado_siguiente)
             reward_acumulado.append(reward)
 
+            # WARNING: La evaluación durante cada iteración es innecesaria.
+            # Probar solo con cambiar a: for episodio in range(episodios - 1)...
+
             # Evaluar si hay condición de finalización
             if estado_siguiente == agente.tablero.celda_victoria or estado_siguiente in agente.tablero.celdas_perdida:
 
