@@ -13,24 +13,12 @@ class AgenteQLearning:
         self.alpha = alpha  # Tasa de aprendizaje
         self.gamma = gamma  # Factor de descuento
         self.epsilon = epsilon  # Ratio de exploración
-        self.pos = 1
+        self.pos = 1 # Inicialización de la posición
         self.acciones = [-1, 1] # Izquierda/Derecha o Arriba/Abajo en los bordes del tablero
 
-        # Inicio de escaleras y rodaderos
-        E_inicio = [a for (a, b) in tablero.celdas_escalera] + [a for (a, b) in tablero.celdas_rodadero]
-        # Fin de escaleras y rodaderos
-        E_fin = [b for (a, b) in tablero.celdas_escalera] + [b for (a, b) in tablero.celdas_rodadero]
-        # Diccionario {inicio -> fin} para ambos casos
-        self.E_dict = {inicio: fin for inicio, fin in zip(E_inicio, E_fin)}
-
-        # Reward en los casos especiales (ganar o perder el juego)
-        self.reward_map = {
-            self.tablero.celda_victoria: 1.0,
-            **{cell: -1.0 for cell in self.tablero.celdas_perdida}
-        }
-
-        # Q-table: Es un mapeo (estado, acción) -> Q estimado (actualizado iterativamente)
-        self.Q = {}  # dict[Tuple[int, int], float]
+        # Q-table (o Q-dict en nuestro caso)
+        # Es un mapeo (estado, acción) -> Q estimado (actualizado iterativamente)
+        self.Q = {}
 
     def escoger_accion(self, estado) -> int:
         """Escoge una acción con el método epsilon-greedy"""
@@ -60,6 +48,7 @@ class AgenteQLearning:
         Q_vals_siguiente_max = max([self.Q.get((estado_siguiente, a), 0.0) for a in self.acciones])
 
         # Actualización
+        # TODO: Probar si hay cambios importantes al variar gamma
         self.Q[(estado, accion)] = Q_actual + self.alpha * (reward + self.gamma * Q_vals_siguiente_max - Q_actual)
 
     def transicion(self, estado, accion):
@@ -69,10 +58,14 @@ class AgenteQLearning:
             - Otra celda válida dentro del tablero
         """
         estado_siguiente = estado + accion
-        estado_siguiente = self.E_dict.get(
-            estado_siguiente, # f(Sₜ,Aₜ)
+        estado_siguiente = self.tablero.escaleras_y_rodaderos.get(
+            # Si el estado_siguiente es el inicio de una escalera/rodadero, entonces retorna el final
+            estado_siguiente,
+            # En caso contrario, solo valida el estado_siguiente
             max(1, min(estado_siguiente, self.tablero.celda_max))
         )
+        # WARNING: No se llega a evaluar una condición de finalización aquí
+        # ya que eso se está manejando externamente en simulacion.py
         return estado_siguiente
 
     def reward(self, estado_siguiente):
@@ -82,7 +75,7 @@ class AgenteQLearning:
             - -1 para celdas perdida
             - 0 para los otros casos
         """
-        return self.reward_map.get(estado_siguiente, 0)
+        return self.tablero.reward_map.get(estado_siguiente, 0)
 
     def step(self) -> Tuple[int, int, float, int]:
         """

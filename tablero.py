@@ -16,29 +16,43 @@ class Tablero:
         celdas_escalera: List[Tuple[int]],
         celdas_rodadero: List[Tuple[int]],
     ):
-        """Inicializar y validar un Tablero"""
+        # ----------------------------------------------------------------------
+        # Validación de celdas
         if nro_filas < 2 or nro_columnas < 2:
             raise ValueError("Debe haber al menos 2 filas y 2 columnas")
         self.celda_max = nro_filas * nro_columnas
-
-        celdas_a_validar = (
-            [celda_victoria]
-            + celdas_perdida
-            + [celda for par in celdas_escalera for celda in par]
-            + [celda for par in celdas_rodadero for celda in par]
-        )
+        celdas_a_validar = ([celda_victoria] + celdas_perdida
+                            + [celda for par in celdas_escalera for celda in par]
+                            + [celda for par in celdas_rodadero for celda in par]
+                            )
         for celda in celdas_a_validar:
             if not limites_validos(celda, self.celda_max):
-                raise ValueError(
-                    f"{celda} fuera de los limites: {1} a {self.celda_max}"
-                )
+                raise ValueError(f"{celda} fuera de los limites: {1} a {self.celda_max}")
 
+        # ----------------------------------------------------------------------
+        # Atributos
         self.nro_filas = nro_filas
         self.nro_columnas = nro_columnas
         self.celda_victoria = celda_victoria
         self.celdas_perdida = [c for c in celdas_perdida if c != celda_victoria]
         self.celdas_escalera = celdas_escalera
         self.celdas_rodadero = celdas_rodadero
+
+        # Ya que la transición desde el inicio hacia el final de una escalera tiene la misma
+        # lógica que la de un rodadero, podemos manejar este "movimiento" con un solo diccionario
+        self.escaleras_y_rodaderos = {inicio: fin for inicio, fin in zip(
+            # Inicio de escaleras y rodaderos
+            [a for (a, b) in self.celdas_escalera] + [a for (a, b) in self.celdas_rodadero],
+            # Fin de escaleras y rodaderos
+            [b for (a, b) in self.celdas_escalera] + [b for (a, b) in self.celdas_rodadero]
+        )}
+
+        # Reward para los casos relevantes: ganar o perder el juego
+        # (implícitamente se define un reward 0 para todos los otros casos)
+        self.reward_map = {
+            self.celda_victoria: 1.0,
+            **{cell: -1.0 for cell in self.celdas_perdida}
+        }
 
     def __repr__(self) -> str:
         """Representación impresa del Tablero"""

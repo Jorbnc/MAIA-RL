@@ -1,4 +1,5 @@
 from tablero import Tablero
+from agente import AgenteQLearning
 from visualizacion import plot_tablero
 from simulacion import run
 import time
@@ -12,7 +13,5 @@ tab = Tablero(
     celdas_escalera=[(14, 46), (21, 77), (25, 36), (68, 90), (84, 100)],
     celdas_rodadero=[(44, 18), (73, 60), (93, 87)],
 )
-
-run(tab, episodios=100)
-
-##
+agente = AgenteQLearning(tab, epsilon=0.1, gamma=0.5)
+run(tab, agente, episodios=100)
