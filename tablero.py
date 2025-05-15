@@ -50,8 +50,8 @@ class Tablero:
         # Reward para los casos relevantes: ganar o perder el juego
         # (implícitamente se define un reward 0 para todos los otros casos)
         self.reward_map = {
-            self.celda_victoria: 1.0,
-            **{cell: -1.0 for cell in self.celdas_perdida}
+            self.celda_victoria: 100.0,
+            **{cell: -100.0 for cell in self.celdas_perdida}
         }
 
     def __repr__(self) -> str:
@@ -87,6 +87,28 @@ class Tablero:
         offset = (-1) ** (fila - 1) * (col - ((fila - 1) % 2))
         return valor_inicial + offset
 
+    def transicion(self, estado, accion):
+        """
+        Función de transición que retorna una celda entre dos posibles opciones:
+            - El final de una escalera/rodadero
+            - Otra celda válida dentro del tablero
+        """
+        estado_siguiente = estado + accion
+        estado_siguiente = self.escaleras_y_rodaderos.get(
+            # Si el estado_siguiente es el inicio de una escalera/rodadero, entonces retorna el final
+            estado_siguiente,
+            # En caso contrario, solo valida el estado_siguiente
+            max(1, min(estado_siguiente, self.celda_max))
+        )
+        # No se llega a evaluar una condición de finalización aquí
+        # ya que eso se está manejando externamente en simulacion.py
+        return estado_siguiente
 
-# Para exportar/importar con `from Tablero import *``
-__all__ = ["limites_validos", "Tablero"]
+    def reward(self, estado_siguiente):
+        """
+        Función de recompensa basado en un mapeo (diccionario): Sₜ₊₁ -> reward
+            - +1 para celda victoria
+            - -1 para celdas perdida
+            - 0 para los otros casos
+        """
+        return self.reward_map.get(estado_siguiente, -1)
