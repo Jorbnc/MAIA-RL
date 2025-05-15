@@ -37,14 +37,14 @@ def run(tablero, agente, episodios) -> None:
 
         # Reiniciar condiciones al inicio de cada episodio
         agente.pos = 1
-        trayectoria_state = [agente.pos]
+        trayectoria_estado = [agente.pos]
         pasos = 0
 
         # Recorrer tablero
         while True:
             estado, accion, reward, estado_siguiente = step()
             pasos += 1
-            trayectoria_state.append(estado_siguiente)
+            trayectoria_estado.append(estado_siguiente)
             reward_acumulado.append(reward)
 
             # Evaluar si hay condición de finalización
@@ -59,5 +59,4 @@ def run(tablero, agente, episodios) -> None:
 
     print(f"Completado en {time.time() - time_s:.4f} segundos")
     # plt.plot(np.cumsum(reward_acumulado))
-    plot_tablero(tablero, Q_values_lista=Q_values_lista, trayectoria=trayectoria_state)
-    # plot_tablero(tablero, trayectoria=trayectoria_state)
+    plot_tablero(tablero, Q_values_lista=Q_values_lista, trayectoria=trayectoria_estado)

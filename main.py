@@ -11,5 +11,5 @@ tab = Tablero(
     celdas_escalera=[(14, 46), (21, 77), (25, 36), (68, 90), (84, 100)],
     celdas_rodadero=[(44, 18), (73, 60), (93, 86)],
 )
-agente = AgenteQLearning(tab, alpha=0.5, epsilon=0.5, gamma=1)
-run(tab, agente, episodios=100)
+agente = AgenteQLearning(tab, alpha=0.75, epsilon=0.5, gamma=1)
+run(tab, agente, episodios=50)

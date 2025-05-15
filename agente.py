@@ -36,10 +36,6 @@ class AgenteQLearning:
             mejores_acciones = [a for a, Q in zip(self.acciones, Q_vals) if Q == Q_max]
             return random.choice(mejores_acciones)
 
-    # FIX:
-    def accionar(self, estado):
-        return
-
     def actualizar_Q(self, estado, accion, reward, estado_siguiente) -> None:
         """
         Actualización Q-learning con base en(Sₜ,Aₜ,Rₜ,Sₜ₊₁):

@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.animation as animation
 from matplotlib.colors import TwoSlopeNorm
+from matplotlib.cm import get_cmap
 import numpy as np
 
 
@@ -35,7 +36,7 @@ def plot_tablero(tablero, trayectoria=None, Q_values_lista=None) -> None:
 
         # Posición de victoria
         vic_coord = tablero.celda_a_coord(tablero.celda_victoria)
-        ax.text(*vic_coord, "FIN", ha="center", va="top", color="green", size=15)
+        ax.text(*vic_coord, "FIN", ha="center", va="top", color="blue", size=15)
 
     # Posiciones de pérdida
     for celda in tablero.celdas_perdida:
@@ -47,7 +48,7 @@ def plot_tablero(tablero, trayectoria=None, Q_values_lista=None) -> None:
         x2, y2 = tablero.celda_a_coord(par[1])
         arrow = mpatches.FancyArrow(x1, y1, x2 - x1, y2 - y1,
                                     width=0.08, length_includes_head=True,
-                                    color="green", alpha=0.5)
+                                    color="blue", alpha=0.5)
         ax.add_patch(arrow)
 
     # Rodaderos
@@ -56,11 +57,11 @@ def plot_tablero(tablero, trayectoria=None, Q_values_lista=None) -> None:
         x2, y2 = tablero.celda_a_coord(par[1])
         arrow = mpatches.FancyArrow(x1, y1, x2 - x1, y2 - y1,
                                     width=0.08, length_includes_head=True,
-                                    color="red", alpha=0.5)
+                                    color="black", alpha=0.5)
         ax.add_patch(arrow)
 
-    # Plotear Q-values
-    if Q_values_lista:
+    # Animar evolución de Q-values y trayectoria
+    if Q_values_lista and trayectoria:
 
         # Generar array con Q_values
         def Q_values_map(Q_dict):
@@ -69,7 +70,6 @@ def plot_tablero(tablero, trayectoria=None, Q_values_lista=None) -> None:
                 x, y = tablero.celda_a_coord(celda)
                 vals[int(y), int(x)] = q
             return vals
-
         vmaps = [Q_values_map(qvals) for qvals in Q_values_lista]
 
         # Norma divergente inicial para el colormap, centrada en 0
@@ -81,50 +81,49 @@ def plot_tablero(tablero, trayectoria=None, Q_values_lista=None) -> None:
             vmaps[0],
             origin='lower',
             extent=[0, nro_columnas, 0, nro_filas],
-            cmap='PiYG',
+            # cmap='PRGn',
+            cmap=get_cmap('seismic_r'),
             norm=norm,
             alpha=0.5
         )
         cbar = plt.colorbar(im, cb)
 
+        # Figura del agente
+        dot, = ax.plot([], [], 'bo', markersize=12)
+
+        num_episodios = len(vmaps)
+        frames_totales = num_episodios + len(trayectoria)
+
         # Animación
         def actualizar_frame(f):
-            # Actualizar vmap
-            vmap = vmaps[f]
-            im.set_data(vmap)
+            artists = [] #
 
-            # recompute dynamic range and update norm
-            lo, hi = vmap.min(), vmap.max()
-            im.set_clim(lo, hi)
-            cbar.update_normal(im)
-            ax.set_title(f"Episodio {f}", fontsize=15)
+            if f < num_episodios:
+                # Actualizar vmap
+                vmap = vmaps[f]
+                im.set_data(vmap)
 
-            return im, cbar
+                # recompute dynamic range and update norm
+                lo, hi = vmap.min(), vmap.max()
+                im.set_clim(lo, hi)
+                cbar.update_normal(im)
+                ax.set_title(f"Episodio {f}", fontsize=15)
+                artists += [im, cbar]
 
-        anim_1 = animation.FuncAnimation(
-            fig, actualizar_frame, frames=len(vmaps),
-            interval=100,
-            repeat=False,
-            blit=False, # redibujar todo
-        )
-        # plt.show()
+            else:
+                ax.set_title(f"Episodio {num_episodios}", fontsize=15)
+                idx = f - num_episodios
+                x, y = tablero.celda_a_coord(trayectoria[idx])
+                dot.set_data([x], [y]) # set_data espera un array, no valores escalares
+                artists.append(dot)
 
-    # Animar trayectoria
-    if trayectoria:
-        dot, = ax.plot([], [], 'bo', markersize=12) # Figura del agente. Se actualiza iterativamente
+            return artists
 
-        def actualizar_frame(frame):
-            coord = tablero.celda_a_coord(trayectoria[frame])
-            dot.set_data([coord[0]], [coord[1]]) # set_data espera un array, no valores escalares
-            return dot, # tuple (con 1 solo elemento) para que FuncAnimation pueda 'iterar' y re-dibujar el dot
-
-        anim_2 = animation.FuncAnimation( # Es necesario asignar a una variable para que el GC no lo elimine
-            fig,
-            actualizar_frame, # Función para llamar por cada frame
-            frames=len(trayectoria), # Total de frames
-            interval=100, # milisegundos
-            repeat=False, # loopear la animación
-            blit=False, # re-dibujar solo figuras que han cambiado
+        anim = animation.FuncAnimation(
+            fig, actualizar_frame, frames=frames_totales,
+            interval=125,
+            repeat=True,
+            blit=False, # no redibujar todo
         )
 
     plt.show()

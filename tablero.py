@@ -40,12 +40,10 @@ class Tablero:
 
         # Ya que la transición desde el inicio hacia el final de una escalera tiene la misma
         # lógica que la de un rodadero, podemos manejar este "movimiento" con un solo diccionario
-        self.escaleras_y_rodaderos = {inicio: fin for inicio, fin in zip(
-            # Inicio de escaleras y rodaderos
-            [a for (a, b) in self.celdas_escalera] + [a for (a, b) in self.celdas_rodadero],
-            # Fin de escaleras y rodaderos
-            [b for (a, b) in self.celdas_escalera] + [b for (a, b) in self.celdas_rodadero]
-        )}
+        self.escaleras_y_rodaderos = {
+            **dict(self.celdas_escalera),
+            **dict(self.celdas_rodadero)
+        }
 
         # Reward para los casos relevantes: ganar o perder el juego
         # (implícitamente se define un reward 0 para todos los otros casos)
@@ -100,6 +98,7 @@ class Tablero:
             # En caso contrario, solo valida el estado_siguiente
             max(1, min(estado_siguiente, self.celda_max))
         )
+
         # No se llega a evaluar una condición de finalización aquí
         # ya que eso se está manejando externamente en simulacion.py
         return estado_siguiente
