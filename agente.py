@@ -19,7 +19,7 @@ class AgenteQLearning:
         for s in self.tablero.espacio_estados:
             # Al caer en una escalera o rodadero, hay una única acción automática
             if self.tablero.escaleras_y_rodaderos.get(s, False):
-                self.s_acciones[s] = ["A"]
+                self.s_acciones[s] = ["auto"]
             # No hay acción en celdas terminales
             elif s == tablero.celda_victoria or s in tablero.celdas_perdida:
                 self.s_acciones[s] = [None]
@@ -76,8 +76,10 @@ class AgenteQLearning:
     def print_Q_politica(self):
         filas, columnas = self.tablero.nro_filas, self.tablero.nro_columnas
         Q_tabla = np.full((filas, columnas), np.nan)
-        politica_optima = np.full((filas, columnas), "  ")
-        acciones_str = {-1: '-1', 1: '+1', 'A': 'A '}
+        politica_optima = np.full((filas, columnas), " ")
+        auto_char = '/'
+        acciones_str_impar = {-1: '←', 1: '→', 'auto': auto_char}
+        acciones_str_par = {-1: '→', 1: '←', 'auto': auto_char}
 
         # Iterar sobre todos los estados visitados
         estados = {s for (s, _) in self.Q.keys()}
@@ -93,10 +95,15 @@ class AgenteQLearning:
 
             # Poblar arrays
             Q_tabla[i, j] = np.round(mejor_q, decimals=2)
-            politica_optima[i, j] = acciones_str[mejor_a]
+            if y_int % 2 == 1:
+                politica_optima[i, j] = acciones_str_impar[mejor_a]
+            else:
+                politica_optima[i, j] = acciones_str_par[mejor_a]
 
         # Print + Rotación para mostrar adecuadamente
-        print("\nQ-tabla (nan = estados terminales o no explorados):")
+        print("\nQ-tabla:\nnan = celda terminal o no explorada")
         print(np.rot90(Q_tabla))
-        print("\nPolítica Óptima ('A' = movimiento automático en escalera/rodadero):")
+        print(f"' ' = celda terminal o no explorada")
+        print(f"\nPolítica Óptima:")
+        print(f"'{auto_char}' = movimiento automático en escalera/rodadero")
         print(np.rot90(politica_optima))
