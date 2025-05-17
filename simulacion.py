@@ -1,12 +1,14 @@
+from typing import Tuple, List
 from visualizacion import plot_tablero
 import matplotlib.pyplot as plt
 import numpy as np
-from typing import Tuple, List
 import time
 
 
-def run(tablero, agente, episodios) -> None:
-    """Correr simulación y plotear la última trayectoria."""
+def run(tablero, agente, episodios, animacion=False, plot_reward_acumulado=False) -> None:
+    """
+    Correr simulación.
+    """
 
     def step() -> Tuple[int, int, float, int]:
         """
@@ -28,8 +30,9 @@ def run(tablero, agente, episodios) -> None:
         return estado, accion, reward, estado_siguiente
 
     # Logging
-    reward_acumulado = []
+    agente_params = (agente.alpha, agente.epsilon, agente.gamma)
     Q_values_lista = []
+    reward_historico = []
 
     # Episodios
     time_s = time.time()
@@ -38,6 +41,7 @@ def run(tablero, agente, episodios) -> None:
         # Reiniciar condiciones al inicio de cada episodio
         agente.pos = 1
         trayectoria_estado = [agente.pos]
+        reward_acumulado = []
         pasos = 0
 
         # Recorrer tablero
@@ -48,15 +52,32 @@ def run(tablero, agente, episodios) -> None:
             reward_acumulado.append(reward)
 
             # Evaluar si hay condición de finalización
-            if estado_siguiente == tablero.celda_victoria or estado_siguiente in tablero.celdas_perdida:
-                print(f"Episodio {episodio} terminó en {pasos} pasos, con reward {reward}.")
+            if estado_siguiente == tablero.celda_victoria:
+                print(f"Episodio {episodio} (✅) terminó en {pasos} pasos, con reward {sum(reward_acumulado)}.")
+                break
+            elif estado_siguiente in tablero.celdas_perdida:
+                print(f"Episodio {episodio} (❌) terminó en {pasos} pasos, con reward {sum(reward_acumulado)}.")
                 break
 
-        Q_values_lista.append(agente.Q_values())
+        # Registrar Q-values
+        Q_values_lista.append(agente.max_Q_values())
+        reward_historico.append(sum(reward_acumulado))
 
         # Epsilon decay
         agente.epsilon *= (episodios - episodio) / episodios
 
     print(f"Completado en {time.time() - time_s:.4f} segundos")
-    # plt.plot(np.cumsum(reward_acumulado))
-    plot_tablero(tablero, Q_values_lista=Q_values_lista, trayectoria=trayectoria_estado)
+
+    agente.print_Q_politica()
+
+    if animacion:
+        plot_tablero(tablero, agente_params, Q_values_lista, trayectoria_estado)
+
+    # Plotear reward histórico
+    if plot_reward_acumulado:
+        plt.plot(range(1, episodios + 1), reward_historico)
+        plt.xlabel("Episodio")
+        plt.ylabel("Reward")
+        plt.title(f"Reward acumulado por episodio")
+        plt.grid(True, alpha=0.65)
+        plt.show()
