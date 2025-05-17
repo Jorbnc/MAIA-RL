@@ -103,7 +103,7 @@ class AgenteQLearning:
         # Print + Rotación para mostrar adecuadamente
         print("\nQ-tabla:\nnan = celda terminal o no explorada")
         print(np.rot90(Q_tabla))
-        print(f"' ' = celda terminal o no explorada")
         print(f"\nPolítica Óptima:")
+        print(f"' ' = celda terminal o no explorada")
         print(f"'{auto_char}' = movimiento automático en escalera/rodadero")
         print(np.rot90(politica_optima))
