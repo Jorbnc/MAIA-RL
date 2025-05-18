@@ -5,7 +5,7 @@ import numpy as np
 import time
 
 
-def run(tablero, agente, episodios, animacion=False, plot_reward_acumulado=False) -> None:
+def run(tablero, agente, episodios, print_politica=False, animacion=False) -> None:
     """
     Correr simulación.
     """
@@ -52,7 +52,7 @@ def run(tablero, agente, episodios, animacion=False, plot_reward_acumulado=False
             reward_acumulado.append(reward)
 
             # Evaluar si hay condición de finalización
-            if estado_siguiente == tablero.celda_victoria:
+            if estado_siguiente in tablero.celdas_victoria:
                 print(f"Episodio {episodio} (✅) terminó en {pasos} pasos, con reward {sum(reward_acumulado)}.")
                 break
             elif estado_siguiente in tablero.celdas_perdida:
@@ -68,16 +68,10 @@ def run(tablero, agente, episodios, animacion=False, plot_reward_acumulado=False
 
     print(f"Completado en {time.time() - time_s:.4f} segundos")
 
-    agente.print_Q_politica()
+    if print_politica:
+        agente.print_Q_politica()
 
     if animacion:
         plot_tablero(tablero, agente_params, Q_values_lista, trayectoria_estado)
 
-    # Plotear reward histórico
-    if plot_reward_acumulado:
-        plt.plot(range(1, episodios + 1), reward_historico)
-        plt.xlabel("Episodio")
-        plt.ylabel("Reward")
-        plt.title(f"Reward acumulado por episodio")
-        plt.grid(True, alpha=0.65)
-        plt.show()
+    return reward_historico

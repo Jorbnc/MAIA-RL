@@ -1,9 +1,10 @@
-import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.colors import TwoSlopeNorm
 from matplotlib.cm import get_cmap
 import numpy as np
+from tablero import coord_a_celda
 
 
 def plot_tablero(tablero, a_params, Q_values_lista, trayectoria) -> None:
@@ -23,23 +24,29 @@ def plot_tablero(tablero, a_params, Q_values_lista, trayectoria) -> None:
     t_axis.set_ylim(0, nro_filas)
     t_axis.set_xticks(range(1, nro_columnas + 1))
     t_axis.set_yticks(range(1, nro_filas + 1))
+    labels_x = [str(i) for i in range(nro_columnas)]
+    labels_y = [str(i) for i in range(nro_filas - 1, -1, -1)]
+    t_axis.set_xticklabels(labels_x, color='gray')
+    t_axis.set_yticklabels(labels_y, color='gray')
+    plt.setp(t_axis.xaxis.get_majorticklabels(), ha="right")
+    plt.setp(t_axis.yaxis.get_majorticklabels(), va="top")
     t_axis.grid(color="black", linewidth=1)
     t_axis.tick_params(
         axis="both", which="both",
-        bottom=False, top=False, left=False, right=False,
-        labelbottom=False, labelleft=False,
+        bottom=True, top=False, left=False, right=False,
+        labelbottom=True, labelleft=True,
     )
 
     # Anotaciones en el tablero ------------------------------------------------------------
     # Números de celdas
     for fila in range(1, nro_filas + 1):
         for col in range(1, nro_columnas + 1):
-            nro_celda = tablero.coord_a_celda(col, fila)
+            nro_celda = coord_a_celda(col, fila, nro_columnas)
             t_axis.text(col - 0.5, fila - 0.35, str(nro_celda), ha="center", va="bottom", alpha=1)
 
-    # Posición de victoria
-    vic_coord = tablero.celda_a_coord(tablero.celda_victoria)
-    t_axis.text(*vic_coord, "FIN", ha="center", va="top", color="blue", size=15)
+    # Posiciones de victoria
+    for celda in tablero.celdas_victoria:
+        t_axis.text(*tablero.celda_a_coord(celda), "V", ha="center", va="top", color="blue", size=15)
 
     # Posiciones de pérdida
     for celda in tablero.celdas_perdida:

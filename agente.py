@@ -21,7 +21,7 @@ class AgenteQLearning:
             if self.tablero.escaleras_y_rodaderos.get(s, False):
                 self.s_acciones[s] = ["auto"]
             # No hay acción en celdas terminales
-            elif s == tablero.celda_victoria or s in tablero.celdas_perdida:
+            elif s == tablero.celdas_victoria or s in tablero.celdas_perdida:
                 self.s_acciones[s] = [None]
             # Todas las otras celdas tienen dos posibles acciones
             else:

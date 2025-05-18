@@ -1,12 +1,29 @@
 from typing import Tuple, List
 
 
+def coord_a_celda(col, fila, nro_columnas=10) -> int:
+    """
+        Obtener el número de celda a partir del par: (columna, fila).
+        El conteo de índices comienza en 1
+        """
+    # Valor base:
+    #   Coordenadas con filas pares inician su conteo en fila * nro_columnas
+    #   Coordenadas con filas impares inician su conteo en (fila - 1) * nro_columnas
+    valor_inicial = (fila - (fila % 2)) * nro_columnas
+    # Valor offset:
+    #   Coordenadas con filas pares disminuyen de izquierda a derecha
+    #   Coordenadas con filas impares aumentan de izquierda a derecha
+    offset = (-1) ** (fila - 1) * (col - ((fila - 1) % 2))
+    # Sumar y retornar ambos valores
+    return valor_inicial + offset
+
+
 class Tablero:
     def __init__(
         self,
         nro_filas: int,
         nro_columnas: int,
-        celda_victoria: int,
+        celdas_victoria: List[int],
         celdas_perdida: List[int],
         celdas_escalera: List[Tuple[int]],
         celdas_rodadero: List[Tuple[int]],
@@ -15,7 +32,7 @@ class Tablero:
         if nro_filas < 2 or nro_columnas < 2:
             raise ValueError("Debe haber al menos 2 filas y 2 columnas")
         self.celda_max = nro_filas * nro_columnas
-        celdas_a_validar = ([celda_victoria] + celdas_perdida
+        celdas_a_validar = (celdas_victoria + celdas_perdida
                             + [celda for par in celdas_escalera for celda in par]
                             + [celda for par in celdas_rodadero for celda in par]
                             )
@@ -28,8 +45,8 @@ class Tablero:
         # Atributos
         self.nro_filas = nro_filas
         self.nro_columnas = nro_columnas
-        self.celda_victoria = celda_victoria
-        self.celdas_perdida = [c for c in celdas_perdida if c != celda_victoria]
+        self.celdas_victoria = celdas_victoria
+        self.celdas_perdida = [c for c in celdas_perdida if c not in celdas_victoria]
         self.celdas_escalera = celdas_escalera
         self.celdas_rodadero = celdas_rodadero
         self.espacio_estados = range(1, nro_filas * nro_columnas + 1)
@@ -44,8 +61,8 @@ class Tablero:
         # Reward para los estados terminales. Esta estructura se define fuera del método
         # reward para no tener que construir el diccionario cada vez que se llame a dicha función
         self.reward_terminales = {
-            self.celda_victoria: 50.0,
-            **{cell: -50.0 for cell in self.celdas_perdida}
+            **{c: +50.0 for c in self.celdas_victoria},
+            **{c: -50.0 for c in self.celdas_perdida}
         }
 
     # Métodos auxiliares para manejar las equivalencias 2D <-> 1D -------------------
@@ -69,22 +86,8 @@ class Tablero:
         # O como valores enteros sin centrar
         return (columna, fila)
 
-    def coord_a_celda(self, col, fila) -> int:
-        """
-        Obtener el número de celda a partir del par: (columna, fila).
-        """
-        # Valor base:
-        #   Coordenadas con filas pares inician su conteo en fila * nro_columnas
-        #   Coordenadas con filas impares inician su conteo en (fila - 1) * nro_columnas
-        valor_inicial = (fila - (fila % 2)) * self.nro_columnas
-        # Valor offset:
-        #   Coordenadas con filas pares disminuyen de izquierda a derecha
-        #   Coordenadas con filas impares aumentan de izquierda a derecha
-        offset = (-1) ** (fila - 1) * (col - ((fila - 1) % 2))
-        # Sumar y retornar ambos valores
-        return valor_inicial + offset
-
     # Métodos del MDP ----------------------------------------------------------------
+
     def transicion(self, estado, accion):
         """
         Función de transición que retorna una celda entre dos posibles opciones:
