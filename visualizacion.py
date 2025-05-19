@@ -57,7 +57,7 @@ def plot_tablero(tablero, a_params, Q_values_lista, trayectoria) -> None:
         x1, y1 = tablero.celda_a_coord(par[0])
         x2, y2 = tablero.celda_a_coord(par[1])
         arrow = mpatches.FancyArrow(x1, y1, x2 - x1, y2 - y1,
-                                    width=0.08, length_includes_head=True,
+                                    width=0.05, length_includes_head=True,
                                     color="blue", alpha=0.5)
         t_axis.add_patch(arrow)
 
@@ -65,7 +65,7 @@ def plot_tablero(tablero, a_params, Q_values_lista, trayectoria) -> None:
         x1, y1 = tablero.celda_a_coord(par[0])
         x2, y2 = tablero.celda_a_coord(par[1])
         arrow = mpatches.FancyArrow(x1, y1, x2 - x1, y2 - y1,
-                                    width=0.08, length_includes_head=True,
+                                    width=0.05, length_includes_head=True,
                                     color="black", alpha=0.5)
         t_axis.add_patch(arrow)
 
@@ -154,7 +154,7 @@ def plot_tablero(tablero, a_params, Q_values_lista, trayectoria) -> None:
         fig,
         actualizar_frame,
         frames=frames_totales,
-        interval=125,
+        interval=100,
         repeat=True,
         blit=False,
     )

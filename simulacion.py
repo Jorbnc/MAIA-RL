@@ -63,7 +63,7 @@ def run(tablero, agente, episodios, print_politica=False, animacion=False) -> No
         Q_values_lista.append(agente.max_Q_values())
         reward_historico.append(sum(reward_acumulado))
 
-        # Epsilon decay
+        # Epsilon decay proporcional al avance de la simulación (epsilon=0 al final)
         agente.epsilon *= (episodios - episodio) / episodios
 
     print(f"Completado en {time.time() - time_s:.4f} segundos")
