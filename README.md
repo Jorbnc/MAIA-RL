@@ -1,1 +1,19 @@
-# Proyecto - Aprendizaje por Reforzamiento
+# Proyecto - Aprendizaje por Reforzamiento: Snakes & Ladders
+- `tablero.py`
+  - Define un MDP con las características espaciales del tablero.
+  - Define dinámicas de transición entre estados y recompensas para el agente.
+  - Incluye métodos para manejar equivalencias entre espacios 1D y 2D.
+- `agente.py`
+  - Define un agente Q-learning que puede ejecutar movimientos y actualiza una Q-tabla.
+  - Incluye métodos para reportar Q-valores y una política de movimiento.
+- `visualización.py`
+  - Permite plotear el tablero mostrando los diferentes tipos de celdas.
+  - Ejecuta una animación del entrenamiento y ejecución del agente.
+- `simulacion.py`
+  - Define la función `run()` para correr la simulación discreta del problema
+  - Define el comportamiento episódico del entrenamiento.
+  - Permite ejecutar logging para mostrar resultados y opcionalmente animaciones.
+- `helpers.py`
+  - Define una función para leer tableros desde archivos `.txt`.
+- `main.py`
+  - Archivo para definir el tablero, agente, y parámetros de la simulación.
