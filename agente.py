@@ -73,11 +73,11 @@ class AgenteQLearning:
             for s in estados
         }
 
-    def print_Q_politica(self):
+    def print_Qtabla_politica(self):
         filas, columnas = self.tablero.nro_filas, self.tablero.nro_columnas
         Q_tabla = np.full((filas, columnas), np.nan)
         politica_optima = np.full((filas, columnas), " ")
-        auto_char = '/'
+        auto_char = 'X'
         acciones_str_impar = {-1: '←', 1: '→', 'auto': auto_char}
         acciones_str_par = {-1: '→', 1: '←', 'auto': auto_char}
 
@@ -91,10 +91,11 @@ class AgenteQLearning:
             # Mejores acción y q en s
             qvals = {a: self.Q.get((s, a), 0.0) for a in self.s_acciones[s]}
             mejor_a = max(qvals, key=qvals.get) # Equivalente a: argmaxₐ qvals[a]
-            mejor_q = self.Q.get((s, mejor_a))
+            mejor_q = self.Q.get((s, mejor_a), 0.0)
 
             # Poblar arrays
             Q_tabla[i, j] = np.round(mejor_q, decimals=2)
+
             if y_int % 2 == 1:
                 politica_optima[i, j] = acciones_str_impar[mejor_a]
             else:

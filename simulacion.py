@@ -5,7 +5,7 @@ import numpy as np
 import time
 
 
-def run(tablero, agente, episodios, print_politica=False, animacion=False) -> None:
+def run(tablero, agente, episodios, print_Qtabla_politica=False, animacion=False) -> None:
     """
     Correr simulación.
     """
@@ -66,10 +66,14 @@ def run(tablero, agente, episodios, print_politica=False, animacion=False) -> No
         # Epsilon decay proporcional al avance de la simulación (epsilon=0 al final)
         agente.epsilon *= (episodios - episodio) / episodios
 
+        # Epsilon decay cada cierto número fijo de episodios
+        # if episodio % 10 == 0:
+        #     agente.epsilon *= 0.9
+
     print(f"Completado en {time.time() - time_s:.4f} segundos")
 
-    if print_politica:
-        agente.print_Q_politica()
+    if print_Qtabla_politica:
+        agente.print_Qtabla_politica()
 
     if animacion:
         plot_tablero(tablero, agente_params, Q_values_lista, trayectoria_estado)

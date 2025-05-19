@@ -27,6 +27,9 @@ class Tablero:
         celdas_perdida: List[int],
         celdas_escalera: List[Tuple[int]],
         celdas_rodadero: List[Tuple[int]],
+        r_victoria: float = 100.0,
+        r_perdida: float = -100.0,
+        r_otros: float = -1.0,
     ):
         # Validación de celdas ----------------------------------------------------------
         if nro_filas < 2 or nro_columnas < 2:
@@ -61,9 +64,10 @@ class Tablero:
         # Reward para los estados terminales. Esta estructura se define fuera del método
         # reward para no tener que construir el diccionario cada vez que se llame a dicha función
         self.reward_terminales = {
-            **{c: +50.0 for c in self.celdas_victoria},
-            **{c: -50.0 for c in self.celdas_perdida}
+            **{c: r_victoria for c in self.celdas_victoria},
+            **{c: r_perdida for c in self.celdas_perdida}
         }
+        self.r_otros = r_otros
 
     # Métodos auxiliares para manejar las equivalencias 2D <-> 1D -------------------
     def celda_a_coord(self, nro_celda, centrar=True) -> tuple[float, float]:
@@ -87,7 +91,6 @@ class Tablero:
         return (columna, fila)
 
     # Métodos del MDP ----------------------------------------------------------------
-
     def transicion(self, estado, accion):
         """
         Función de transición que retorna una celda entre dos posibles opciones:
@@ -113,5 +116,5 @@ class Tablero:
             # Recompensa de celda victoria o de celda trampa
             estado_siguiente,
             # Recompensa negativa. La intención es presionar al agente para ganar lo antes posible
-            -1
+            self.r_otros
         )
