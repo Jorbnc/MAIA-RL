@@ -94,7 +94,7 @@ class AgenteQLearning:
             mejor_q = self.Q.get((s, mejor_a), 0.0)
 
             # Poblar arrays
-            Q_tabla[i, j] = np.round(mejor_q, decimals=2)
+            Q_tabla[i, j] = np.round(mejor_q, decimals=1)
 
             if y_int % 2 == 1:
                 politica_optima[i, j] = acciones_str_impar[mejor_a]
@@ -102,9 +102,10 @@ class AgenteQLearning:
                 politica_optima[i, j] = acciones_str_par[mejor_a]
 
         # Print + Rotación para mostrar adecuadamente
-        print("\nQ-tabla:\nnan = celda terminal o no explorada")
+        print("\nQ-tabla:")
+        print("Se asigna numpy.nan (en lugar de 0) a celdas terminales y celdas no exploradas")
         print(np.rot90(Q_tabla))
         print(f"\nPolítica Óptima:")
         print(f"' ' = celda terminal o no explorada")
-        print(f"'{auto_char}' = movimiento automático en escalera/rodadero")
+        print(f"'{auto_char}' = movimiento único en escalera/rodadero")
         print(np.rot90(politica_optima))
