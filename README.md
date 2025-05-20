@@ -8,7 +8,7 @@
   - Incluye métodos para reportar Q-valores y una política de movimiento.
 - `visualización.py`
   - Permite plotear el tablero mostrando los diferentes tipos de celdas.
-  - Ejecuta una animación del entrenamiento y ejecución del agente.
+  - Ejecuta una animación del entrenamiento y recorrido del agente.
 - `simulacion.py`
   - Define la función `run()` para correr la simulación discreta del problema
   - Define el comportamiento episódico del entrenamiento.
