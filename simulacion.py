@@ -1,11 +1,25 @@
-from typing import Tuple, List
+from typing import Tuple, List, Callable
 from visualizacion import plot_tablero
 import matplotlib.pyplot as plt
 import numpy as np
 import time
 
 
-def run(tablero, agente, episodios, print_Qtabla_politica=False, animacion=False) -> None:
+def crear_scheduler_oscilante(epsilon_inicial, max_episodios, n_ciclos) -> Callable[[float, int], float]:
+    """
+    Retorna una función de oscilación para epsilon: epsilon = scheduler(_, episodio)
+      - Oscila durante n_ciclos a lo largo de los max_episodios
+      - La amplitud decae de forma lineal hasta 0
+    """
+    def scheduler(prev_eps: float, episodio: int) -> float:
+        envelope = 1 - episodio / max_episodios
+        cos_term = 0.5 * (1 + np.cos(2 * np.pi * n_ciclos * episodio / max_episodios))
+        return epsilon_inicial * envelope * cos_term
+
+    return scheduler
+
+
+def run(tablero, agente, episodios, epsilon_ciclos=5, animacion=False, interval=100) -> None:
     """
     Correr simulación.
     """
@@ -32,7 +46,10 @@ def run(tablero, agente, episodios, print_Qtabla_politica=False, animacion=False
     # Logging
     agente_params = (agente.alpha, agente.epsilon, agente.gamma)
     Q_values_lista = []
-    reward_historico = []
+    reward_episodico = []
+    epsilon_episodico = [agente.epsilon]
+
+    osc_scheduler = crear_scheduler_oscilante(epsilon_inicial=agente.epsilon, max_episodios=episodios, n_ciclos=epsilon_ciclos)
 
     # Episodios
     time_s = time.time()
@@ -61,21 +78,26 @@ def run(tablero, agente, episodios, print_Qtabla_politica=False, animacion=False
 
         # Registrar Q-values
         Q_values_lista.append(agente.max_Q_values())
-        reward_historico.append(sum(reward_acumulado))
+        reward_episodico.append(sum(reward_acumulado))
 
-        # Epsilon decay proporcional al avance de la simulación (epsilon=0 al final)
-        agente.epsilon *= (episodios - episodio) / episodios
+        # EPSILON DECAY ------------------------------------------------
+        # Proporcional al avance de la simulación (epsilon=0 al final)
+        # agente.epsilon *= (episodios - episodio) / episodios
 
-        # Epsilon decay cada cierto número fijo de episodios
-        # if episodio % 10 == 0:
+        # Cada cierto número fijo de episodios
+        # if episodio % 50 == 0:
         #     agente.epsilon *= 0.9
+
+        # Cosine Annealing
+        agente.epsilon = osc_scheduler(agente.epsilon, episodio)
+        epsilon_episodico.append(agente.epsilon)
+        # -------------------------------------------------------------
 
     print(f"Completado en {time.time() - time_s:.4f} segundos")
 
-    if print_Qtabla_politica:
-        agente.print_Qtabla_politica()
+    agente.obtener_Qtabla_politica()
 
     if animacion:
-        plot_tablero(tablero, agente_params, Q_values_lista, trayectoria_estado)
+        plot_tablero(tablero, agente_params, Q_values_lista, trayectoria_estado, epsilon_episodico, interval)
 
-    return reward_historico
+    # return reward_historico

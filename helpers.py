@@ -54,4 +54,4 @@ def leer_tablero(file) -> Tuple[List, List, List, List]:
             x, y = cambio_coord((fila1, col1))
             victoria.append(coord_a_celda(x, y))
 
-    return escaleras, rodaderos, perdida, victoria
+    return rodaderos, escaleras, perdida, victoria

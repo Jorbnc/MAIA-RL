@@ -1,5 +1,6 @@
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
 import matplotlib.animation as animation
 from matplotlib.colors import TwoSlopeNorm
 from matplotlib.cm import get_cmap
@@ -7,7 +8,7 @@ import numpy as np
 from tablero import coord_a_celda
 
 
-def plot_tablero(tablero, a_params, Q_values_lista, trayectoria) -> None:
+def plot_tablero(tablero, a_params, Q_values_lista, trayectoria, epsilon_episodico, interval) -> None:
     """
     Plotear el tablero y mostrar dos animaciones:
         - Evolución de los estado-valores durante todos los episodios
@@ -16,10 +17,13 @@ def plot_tablero(tablero, a_params, Q_values_lista, trayectoria) -> None:
     nro_filas, nro_columnas = tablero.nro_filas, tablero.nro_columnas
 
     # Configuración del plot ---------------------------------------------------------------
-    fig, (t_axis, cb_axis) = plt.subplots(
-        1, 2, figsize=(nro_columnas, nro_filas),
-        dpi=75, gridspec_kw={'width_ratios': [15, 1]}
-    )
+    fig = plt.figure(figsize=(nro_columnas, nro_filas), dpi=80)
+    gs = GridSpec(2, 2, width_ratios=[15, 1], height_ratios=[4, 1], hspace=0.25)
+
+    t_axis = fig.add_subplot(gs[0, 0])
+    cb_axis = fig.add_subplot(gs[0, 1])
+    eps_axis = fig.add_subplot(gs[1, :])
+
     t_axis.set_xlim(0, nro_columnas)
     t_axis.set_ylim(0, nro_filas)
     t_axis.set_xticks(range(1, nro_columnas + 1))
@@ -118,11 +122,20 @@ def plot_tablero(tablero, a_params, Q_values_lista, trayectoria) -> None:
     cbar = plt.colorbar(im, cb_axis, label='Q-valor')
     dot, = t_axis.plot([], [], 'bo', markersize=12)
     t_axis.set_xlabel(
-        f"α={a_params[0]}, ε={a_params[1]}, γ={a_params[2]}\n(celdas terminales y nunca visitadas en gris)",
+        f"(celdas terminales y nunca visitadas en gris)",
         fontsize=13
     )
 
+    # Epsilon por episodio
+    eps_path = eps_axis.plot(range(num_episodios + 1), epsilon_episodico, color='black', alpha=0.50)
+    dot_eps, = eps_axis.plot([], [], marker=r'$\epsilon$', linestyle='None', color='black', markersize=10)
+    eps_axis.set_xlim(0, num_episodios)
+    eps_axis.set_ylim(0, 1)
+    eps_axis.set_title("Oscilación de epsilon")
+    eps_axis.grid(True)
+
     # Función de actualización de frames
+
     def actualizar_frame(f):
         #
         artists = []
@@ -135,15 +148,22 @@ def plot_tablero(tablero, a_params, Q_values_lista, trayectoria) -> None:
             # Actualizar colores y colorbar
             im.set_clim(m.min(), m.max())
             cbar.update_normal(im)
-            t_axis.set_title(f"Q-valor máximo por estado para el episodio {f}", fontsize=17)
+            t_axis.set_title(
+                f"Q-valor máximo por estado para el episodio {f}\nα={a_params[0]}, ε={a_params[1]}, γ={a_params[2]}",
+                fontsize=15
+            )
 
-            artists += [im, cbar]
+            # Actualizar valor epsilon
+            dot_eps.set_data([f], [epsilon_episodico[f]])
+
+            artists += [im, cbar, dot_eps]
 
         # Animación del recorrido
         else:
             t_axis.set_title(f"Q-valor máximo por estado para el episodio {num_episodios}", fontsize=17)
             x, y = tablero.celda_a_coord(trayectoria[f - num_episodios])
             dot.set_data([x], [y])
+            dot_eps.set_data([f], [epsilon_episodico[-1]])
             artists.append(dot)
 
         return artists
@@ -154,7 +174,7 @@ def plot_tablero(tablero, a_params, Q_values_lista, trayectoria) -> None:
         fig,
         actualizar_frame,
         frames=frames_totales,
-        interval=100,
+        interval=interval,
         repeat=True,
         blit=False,
     )

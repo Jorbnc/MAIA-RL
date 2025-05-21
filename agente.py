@@ -73,7 +73,7 @@ class AgenteQLearning:
             for s in estados
         }
 
-    def print_Qtabla_politica(self):
+    def obtener_Qtabla_politica(self):
         filas, columnas = self.tablero.nro_filas, self.tablero.nro_columnas
         Q_tabla = np.full((filas, columnas), np.nan)
         politica_optima = np.full((filas, columnas), " ")
@@ -101,11 +101,15 @@ class AgenteQLearning:
             else:
                 politica_optima[i, j] = acciones_str_par[mejor_a]
 
-        # Print + Rotación para mostrar adecuadamente
+        # Rotación para mostrar adecuadamente
+        Q_tabla = np.rot90(Q_tabla)
+        politica_optima = np.rot90(politica_optima)
+        # Print
         print("\nQ-tabla:")
         print("Se asigna numpy.nan (en lugar de 0) a celdas terminales y celdas no exploradas")
-        print(np.rot90(Q_tabla))
+        print(Q_tabla)
         print(f"\nPolítica Óptima:")
         print(f"' ' = celda terminal o no explorada")
         print(f"'{auto_char}' = movimiento único en escalera/rodadero")
-        print(np.rot90(politica_optima))
+        print(politica_optima)
+        return Q_tabla, politica_optima

@@ -8,7 +8,7 @@ from simulacion import run
 from helpers import leer_tablero
 
 ## Tablero para el proyecto ===============================================
-escaleras, rodaderos, perdida, victoria = leer_tablero('tablero.txt')
+rodaderos, escaleras, perdida, victoria = leer_tablero('tablero.txt')
 tab = Tablero(
     nro_filas=10,
     nro_columnas=10,
@@ -18,23 +18,26 @@ tab = Tablero(
     celdas_rodadero=rodaderos,
     r_victoria=100, r_perdida=-100, r_otros=-1
 )
-agente = AgenteQLearning(tab, alpha=0.65, epsilon=0.25, gamma=1)
-run(tab, agente, episodios=45, animacion=True, print_Qtabla_politica=True)
+agente = AgenteQLearning(tab, alpha=0.5, epsilon=1, gamma=1)
+run(tab, agente, episodios=60, epsilon_ciclos=4, animacion=True)
 
-# Imprimir Q-tabla detallada
-print("\nQ-tabla detallada (1 significa moverse a la celda mayor inmediata, -1 significa lo contrario):")
-for (sa, q) in sorted(agente.Q.items()):
-    print(sa, f"{q:.2f}")
+# Una vez entrenado el agente, podemos acceder a su Q-tabla (valor máximo) y política
+Qtabla, politica = agente.obtener_Qtabla_politica()
+
+# También se puede imprimir Q-tabla detallada
+# print("\nQ-tabla detallada (1 significa moverse a la celda mayor inmediata, -1 significa lo contrario):")
+# for (sa, q) in sorted(agente.Q.items()):
+#     print(sa, f"{q:.2f}")
 
 ## Tablero adicional 1 ====================================================
-# tab = Tablero(
-#     nro_filas=10,
-#     nro_columnas=10,
-#     celdas_victoria=[100],
-#     celdas_perdida=[16, 50, 80, 96],
-#     celdas_escalera=[(14, 46), (21, 77), (25, 36), (68, 90), (84, 100)],
-#     celdas_rodadero=[(38, 18), (73, 60), (92, 86)],
-#     r_victoria=100, r_perdida=-100, r_otros=-1
-# )
-# agente = AgenteQLearning(tab, alpha=0.75, epsilon=0.05, gamma=1)
-# run(tab, agente, episodios=75, print_Qtabla_politica=True, animacion=True)
+tab = Tablero(
+    nro_columnas=10,
+    nro_filas=10,
+    celdas_victoria=[96],
+    celdas_perdida=[14, 56, 85],
+    celdas_escalera=[(6, 26), (7, 70), (22, 58), (60, 80), (68, 93), (84, 100), (47, 65), (33, 51)],
+    celdas_rodadero=[(25, 20), (30, 13), (57, 36), (73, 61)],
+    r_victoria=100, r_perdida=-200, r_otros=-1
+)
+agente = AgenteQLearning(tab, alpha=0.5, epsilon=1, gamma=1)
+run(tab, agente, episodios=400, epsilon_ciclos=4, animacion=True, interval=50)
