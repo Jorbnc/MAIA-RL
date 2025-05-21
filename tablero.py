@@ -27,8 +27,8 @@ class Tablero:
         celdas_perdida: List[int],
         celdas_escalera: List[Tuple[int]],
         celdas_rodadero: List[Tuple[int]],
-        r_victoria: float = 100.0,
-        r_perdida: float = -100.0,
+        r_victoria: float = 200.0,
+        r_perdida: float = -200.0,
         r_otros: float = -1.0,
     ):
         # Validación de celdas ----------------------------------------------------------

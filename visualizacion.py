@@ -134,8 +134,9 @@ def plot_tablero(tablero, a_params, Q_values_lista, trayectoria, epsilon_episodi
     eps_axis.set_title("Oscilación de epsilon")
     eps_axis.grid(True)
 
-    # Función de actualización de frames
+    params_str = f"α = {a_params[0]}, ε = {a_params[1]}, γ = {a_params[2]}"
 
+    # Función de actualización de frames
     def actualizar_frame(f):
         #
         artists = []
@@ -149,7 +150,7 @@ def plot_tablero(tablero, a_params, Q_values_lista, trayectoria, epsilon_episodi
             im.set_clim(m.min(), m.max())
             cbar.update_normal(im)
             t_axis.set_title(
-                f"Q-valor máximo por estado para el episodio {f}\nα={a_params[0]}, ε={a_params[1]}, γ={a_params[2]}",
+                f"Q-valor máximo por estado para el episodio {f}\n{params_str}",
                 fontsize=15
             )
 
@@ -160,7 +161,10 @@ def plot_tablero(tablero, a_params, Q_values_lista, trayectoria, epsilon_episodi
 
         # Animación del recorrido
         else:
-            t_axis.set_title(f"Q-valor máximo por estado para el episodio {num_episodios}", fontsize=17)
+            t_axis.set_title(
+                f"Q-valor máximo por estado para el episodio {num_episodios}\n{params_str}",
+                fontsize=15
+            )
             x, y = tablero.celda_a_coord(trayectoria[f - num_episodios])
             dot.set_data([x], [y])
             dot_eps.set_data([f], [epsilon_episodico[-1]])

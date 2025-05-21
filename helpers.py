@@ -1,5 +1,6 @@
 from typing import Tuple, List
 from tablero import coord_a_celda
+import numpy as np
 
 
 def cambio_coord(coord, nro_cols=10, nro_filas=10):
@@ -55,3 +56,19 @@ def leer_tablero(file) -> Tuple[List, List, List, List]:
             victoria.append(coord_a_celda(x, y))
 
     return rodaderos, escaleras, perdida, victoria
+
+
+def guardar_Qtabla(path: str, Qtabla: dict):
+    """
+    Transforma una Q-tabla (dict) a un array de Numpy y guarda el archivo como .npy
+    """
+    arr = np.array(list(Qtabla.items()), dtype=object)
+    np.save(path, arr)
+    print(f"Q-tabla guardada en {path}")
+
+
+def cargar_Qtabla(path):
+    print(f"Cargando Q-tabla desde {path}")
+    Qtabla_arr = np.load(path, allow_pickle=True)
+    Qtabla_dict = dict(Qtabla_arr.tolist())
+    return Qtabla_dict
