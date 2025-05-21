@@ -8,7 +8,7 @@ from simulacion import run
 from helpers import leer_tablero, guardar_Qtabla, cargar_Qtabla
 
 ## Tablero para el proyecto ===============================================
-rodaderos, escaleras, perdida, victoria = leer_tablero('tablero.txt')
+rodaderos, escaleras, perdida, victoria = leer_tablero('./tablero')
 tab = Tablero(
     # Características espaciales del tablero
     nro_filas=10,
