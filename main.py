@@ -28,19 +28,19 @@ reward_historico, Qtabla = run(
     epsilon_ciclos=5, # Número de ciclos de oscilación para epsilon
     print_Qvalores_politica=True, animacion=False,
 )
-# guardar_Qtabla("Qtabla.npy", Qtabla)
-#
-# print("\nBootstrapping:")
-# # Bootstrapping con un segundo agente =====================================
-# Qtabla_bootstrap = cargar_Qtabla("Qtabla.npy")
-# agente2 = AgenteQLearning(tab, alpha=0.5, epsilon=0, gamma=1)
-# agente2.Qtabla = Qtabla_bootstrap
-# _, _ = run(
-#     tab, agente2, episodios=1,
-#     print_Qvalores_politica=False, animacion=True
-# )
+guardar_Qtabla("Qtabla.npy", Qtabla)
 
-## Tablero adicional 1 ====================================================
+print("\nBootstrapping:")
+# Bootstrapping con un segundo agente =====================================
+Qtabla_bootstrap = cargar_Qtabla("Qtabla.npy")
+agente2 = AgenteQLearning(tab, alpha=0.5, epsilon=0, gamma=1)
+agente2.Qtabla = Qtabla_bootstrap
+_, _ = run(
+    tab, agente2, episodios=1,
+    print_Qvalores_politica=False, animacion=True
+)
+
+## Tablero adicional  ====================================================
 # tab = Tablero(
 #     nro_columnas=10,
 #     nro_filas=10,
@@ -50,5 +50,11 @@ reward_historico, Qtabla = run(
 #     celdas_rodadero=[(25, 20), (30, 13), (57, 36), (73, 61)],
 #     r_victoria=100, r_perdida=-100, r_otros=-1
 # )
-# agente = AgenteQLearning(tab, alpha=0.35, epsilon=0.85, gamma=1)
-# run(tab, agente, episodios=500, epsilon_ciclos=3, animacion=False, interval=1)
+# agente = AgenteQLearning(tab, alpha=0.25, epsilon=1, gamma=1)
+#
+# # Run
+# reward_historico, Qtabla = run(
+#     tab, agente, episodios=200,
+#     epsilon_ciclos=3,
+#     print_Qvalores_politica=True, animacion=True
+# )

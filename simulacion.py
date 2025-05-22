@@ -111,7 +111,7 @@ def run(
 
     print(f"Completado en {time.time() - time_s:.4f} segundos")
 
-    if not plot_pasos:
+    if plot_pasos:
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(8, 4))
         for ax in (ax1, ax2, ax3):
             ax.set_xlim(1, episodios + 1)
