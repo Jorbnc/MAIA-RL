@@ -20,18 +20,25 @@ tab = Tablero(
     # Reward
     r_victoria=100, r_perdida=-100, r_otros=-1
 )
-agente = AgenteQLearning(tab, alpha=0.5, epsilon=1, gamma=1)
+agente = AgenteQLearning(tab, alpha=0.5, epsilon=0.5, gamma=1)
 
 # Run
-reward_historico, Qtabla = run(tab, agente, episodios=80, print_Qvalores_politica=True, epsilon_ciclos=3, animacion=True)
-guardar_Qtabla("Qtabla.npy", Qtabla)
-
-# Bootstrapping
-print("\nBootstrapping:")
-Qtabla_bootstrap = cargar_Qtabla("Qtabla.npy")
-agente2 = AgenteQLearning(tab, alpha=0.5, epsilon=0, gamma=1)
-agente2.Qtabla = Qtabla_bootstrap
-_, _ = run(tab, agente2, episodios=1, print_Qvalores_politica=True, epsilon_ciclos=3, animacion=True)
+reward_historico, Qtabla = run(
+    tab, agente, episodios=20000,
+    epsilon_ciclos=5, # Número de ciclos de oscilación para epsilon
+    print_Qvalores_politica=True, animacion=False,
+)
+# guardar_Qtabla("Qtabla.npy", Qtabla)
+#
+# print("\nBootstrapping:")
+# # Bootstrapping con un segundo agente =====================================
+# Qtabla_bootstrap = cargar_Qtabla("Qtabla.npy")
+# agente2 = AgenteQLearning(tab, alpha=0.5, epsilon=0, gamma=1)
+# agente2.Qtabla = Qtabla_bootstrap
+# _, _ = run(
+#     tab, agente2, episodios=1,
+#     print_Qvalores_politica=False, animacion=True
+# )
 
 ## Tablero adicional 1 ====================================================
 # tab = Tablero(
@@ -41,7 +48,7 @@ _, _ = run(tab, agente2, episodios=1, print_Qvalores_politica=True, epsilon_cicl
 #     celdas_perdida=[14, 56, 85],
 #     celdas_escalera=[(6, 26), (7, 70), (22, 58), (60, 80), (68, 93), (84, 100), (47, 65), (33, 51)],
 #     celdas_rodadero=[(25, 20), (30, 13), (57, 36), (73, 61)],
-#     r_victoria=100, r_perdida=-200, r_otros=-1
+#     r_victoria=100, r_perdida=-100, r_otros=-1
 # )
-# agente = AgenteQLearning(tab, alpha=0.5, epsilon=1, gamma=1)
-# run(tab, agente, episodios=500, epsilon_ciclos=3, animacion=True, interval=1)
+# agente = AgenteQLearning(tab, alpha=0.35, epsilon=0.85, gamma=1)
+# run(tab, agente, episodios=500, epsilon_ciclos=3, animacion=False, interval=1)
