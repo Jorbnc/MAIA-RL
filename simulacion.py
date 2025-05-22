@@ -134,7 +134,7 @@ def run(
         Qvals, politica = agente.obtener_Qmax_politica()
         print("\nQ-valores máximos:")
         print("Se asigna numpy.nan (en lugar de 0) a celdas terminales y celdas no exploradas\n", Qvals)
-        print("\nPolítica Óptima:\n' ' = celda terminal o no explorada")
+        print("\nPolítica:\n' ' = celda terminal o no explorada")
         print("'X' = movimiento único en escalera/rodadero\n", politica)
 
     if animacion:
